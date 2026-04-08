@@ -1,73 +1,108 @@
-Error #1: The Trailing Slash That Wasted 2 Hours
+# **Error #1: The Trailing Slash That Wasted 2 Hours**
 
-What happened ?
-I am working on the Patient Service of my CareSync project and had created a simple GET API:
+---
 
+## **What happened**
+
+While working on the **Patient Service** of my CareSync project, I created a simple GET API:
+
+```
 GET /patients
+```
 
-Everything seemed fine.
-The application was starting without errors, my controller was correctly written, and the service + repository layers were also working.
+Everything appeared correct:
 
-But when I tried to hit the endpoint, I kept getting a 404 error.
+- The application started without errors  
+- The controller, service, and repository layers were correctly implemented  
+- No startup issues  
 
-The error I saw
+However, when I tried to access the endpoint, I kept receiving a **404 Not Found** error.
+
+---
+
+## **The error observed**
+
+```
 NoResourceFoundException: No static resource patients
+```
 
 Response:
 
+```
 {
   "status": 404,
   "error": "Not Found",
   "message": "No static resource patients.",
   "path": "/patients/"
 }
+```
 
+---
 
-What I did for 2 hours :)
-I genuinely thought something was seriously wrong in my backend. So I:
-    -> Rechecked my controller annotations (@RestController, @RequestMapping)
-    -> Verified the package structure
-    -> Debugged the service layer
-    -> Checked the repository and database connection
-    -> Looked into H2 database issues
-    -> Even doubted my dependencies and pom.xml
+## **Debugging for 2 hours**
 
-Everything looked correct, which made it even more confusing.
+Initially, I assumed there was a backend problem. I spent significant time checking:
 
-The actual problem
-I was calling:
+- Controller annotations (`@RestController`, `@RequestMapping`)  
+- Package structure and class organization  
+- Service layer logic  
+- Repository layer and database connection  
+- H2 database configuration  
+- Dependencies and `pom.xml`  
 
+Everything looked correct, which made the situation even more confusing.
+
+---
+
+## **The actual problem**
+
+After over two hours, I realized the mistake:
+
+I was accessing the URL with a trailing slash:
+
+```
 http://localhost:4000/patients/
+```
 
-instead of:
+Instead of the correct URL:
 
+```
 http://localhost:4000/patients
+```
 
-That’s it. Just an extra / at the end.
+A single trailing slash was causing the issue.
 
-Why this caused the error
+---
 
-Spring Boot (version 3+) treats /patients and /patients/ as different endpoints.
+## **Why it caused the error**
 
-Since my controller was mapped to /patients and not /patients/, Spring couldn’t find a matching handler.
-So it assumed I was trying to access a static resource — and failed with that error.
+In **Spring Boot 3+**, `/patients` and `/patients/` are treated as **different endpoints**.  
 
-Fix
+Since my controller was mapped to `/patients` (without the slash), Spring could not find a matching handler. It assumed the request was for a static resource and returned a 404 error.
 
-Use the correct URL:
+---
 
+## **Fix**
+
+Always use the correct endpoint:
+
+```
 http://localhost:4000/patients
+```
 
-Lesson learned
+---
 
-This was honestly frustrating, but also a good reminder:
+## **Lessons learned**
 
-Not every error is due to complex logic issues
-Sometimes it's just a tiny detail
-Always double-check the exact URL before overthinking everything
-Final note
+- Not all errors are due to complex logic or broken code  
+- Small details like a trailing slash can cause confusing errors  
+- Always double-check the exact URL before overthinking the backend  
+- Debug methodically, but remember to verify the simplest possibilities first
 
-Spent more than 2 hours debugging something that wasn’t even broken.
-Just a trailing slash.
+---
 
-Never making this mistake again.
+## **Final note**
+
+I spent more than two hours debugging something that wasn’t broken. The lesson: sometimes the smallest detail makes the biggest impact.  
+
+This will not happen again.
